@@ -2,69 +2,90 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Protected System</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYSTEM LOADING...</title>
     <style>
-        body { background: #000; color: #444; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
-        #status { font-size: 12px; letter-spacing: 2px; }
+        body { background: #000; color: #00d2ff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: monospace; }
+        #loader { text-align: center; letter-spacing: 4px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
-    <div id="status">INITIALIZING SYSTEM...</div>
+    <div id="loader">VERIFYING SYSTEM INTEGRITY...</div>
 
     <script>
     (function() {
-        // 1. 보안 설정: 우클릭 및 단축키 차단
+        /**
+         * STAGE 1: ANTI-TAMPER & DEFENSE
+         */
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.onkeydown = e => {
             if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
 
-        // 2. 안티 디버깅 트랩
-        setInterval(function() {
-            const s = performance.now();
-            debugger; 
-            if (performance.now() - s > 100) {
-                document.body.innerHTML = "ACCESS DENIED";
-                location.reload();
+        // 개발자 도구 감지 트랩 (무한 루프 방지형)
+        const checkDebugger = function() {
+            const start = performance.now();
+            debugger;
+            if (performance.now() - start > 100) {
+                document.body.innerHTML = "UNAUTHORIZED ACCESS DETECTED";
+                window.location.href = "about:blank";
             }
-        }, 500);
+        };
+        setInterval(checkDebugger, 1000);
 
-        // 3. 메인 보안 엔진
-        async function verifyAndRun() {
-            const EXPIRE = "2026-05-30";
-            const statusEl = document.getElementById('status');
+        /**
+         * STAGE 2: TIME & LICENSE VERIFICATION
+         */
+        async function authenticate() {
+            const EXPIRE_TS = new Date("2026-05-30").getTime();
+            let currentTime;
 
             try {
-                const response = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
-                const timeData = await response.json();
-                const now = timeData.datetime.split('T')[0];
-
-                if (now > EXPIRE) {
-                    statusEl.innerText = "LICENSE EXPIRED.";
-                    return;
+                // 1순위: 월드타임 API 시도
+                const res = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC', { cache: 'no-store' });
+                const data = await res.json();
+                currentTime = new Date(data.datetime).getTime();
+            } catch (e) {
+                // 2순위: 실패 시 서버 응답 헤더 시도 (CORS 대응)
+                try {
+                    const res = await fetch(window.location.href, { method: 'HEAD' });
+                    currentTime = new Date(res.headers.get('Date')).getTime();
+                } catch (e2) {
+                    // 3순위: 오프라인/로컬인 경우 시스템 시간 (최후의 보루)
+                    currentTime = new Date().getTime();
                 }
+            }
 
-                // 찬욱님의 원본 코드를 암호화한 페이로드 (난독화됨)
-                // 보안을 위해 이 부분은 실제 배포시 더 복잡하게 꼬아야 합니다.
-                const payload = `PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImtvIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8dGl0bGU+Q2hhbi13b29rIEN5Y2xlIFN5c3RlbSB2MjwvdGl0bGU+CiAgICA8c3R5bGU+JHtyZXBsYWNlX3dpdGhfY3NzX2xvZ2ljfTwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+JHtyZXBsYWNlX3dpdGhfYm9keV9jb250ZW50fTwvYm9keT4KPC9odG1sPg==`;
-                
-                // 실제 찬욱님의 코드를 복원하여 주입 (메모리 상에서만 실행)
-                // 테스트를 위해 직접 코드를 주입하는 대신 핵심 로직을 실행하도록 구성됨
-                setTimeout(() => {
-                    document.open();
-                    // 찬욱님의 원본 HTML 코드를 여기에 복원 (아래는 데모용 단순 복구 로직)
-                    document.write(atob("${btoa(document.documentElement.innerHTML)}")); 
-                    document.close();
-                }, 1000);
+            if (currentTime > EXPIRE_TS) {
+                document.getElementById('loader').innerText = "LICENSE EXPIRED. CONTACT SYSTEM ADMIN.";
+                return;
+            }
 
+            launch();
+        }
+
+        /**
+         * STAGE 3: PAYLOAD DEPLOYMENT (Chan-wook's Core Logic)
+         * 찬욱님의 원본 HTML/CSS/JS를 Base64로 인코딩하여 감추었습니다.
+         */
+        function launch() {
+            // 이 데이터는 깃허브 상에서 단순한 텍스트 덩어리로 보입니다.
+            const _0x_pld = `PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0ia28iPjxoZWFkPjxtZXRhIGNoYXJzZXQ9IlVURi04Ij48bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpinitpYWwtc2NhbGU9MS4wLCBtYXhpbXVtLXNjYWxlPTEuMCwgdXNlci1zY2FsYWJsZT1ubyI+PHRpdGxlPkNoYW4td29vayBDeWNsZSBTeXN0ZW0gdjI8L3RpdGxlPjxzdHlsZT46cm9vdHt--bgojMDAwOy0tYWNjZW50LXN0YXRpYzojMDBkMmZmOy0tYWNjZW50LXNwaXJhbDojZmYwMGZmOy0td2hpdGU6I2ZmZmZmZjstLWFjdGl2ZS1rZXk6I2ZmZWIzYn1ib2R5e2ZvbnQtZmFtaWx5Oi1hcHBsZS1zeXN0ZW0sc2Fucy1zZXJpZjtiYWNrZ3JvdW5kLWNvbG9yOnZhcigtLWJnKTtjb2xvcjojZmZmO21hcmdpbjowO3BhZGRpbmc6MDtkaXNwbGF5OmZsZXg7ZmxleC1kaXJlY3Rpb246Y29sdW1uO2hlaWdodDoxMDB2aDt3aWR0aDoxMDB2dztvdmVyZmxvdzpoaWRkZW59LmhlYWRlcnt0ZXh0LWFsaWduOmNlbnRlcjtwYWRkaW5nOjEwcHggNXB4O2JhY2tncm91bmQ6IzExMTtib3JkZXItYm90dG9tOjJweCBzb2xpZCAjMzMzO2ZsZXgtc2hyaW5rOjB9LmhlYWRlciBoMXtmb250LXNpemU6MC45cmVtO21hcmdpbjowO2NvbG9yOiNmZmY7bGV0dGVyLXNwYWNpbmc6MXB4O2ZvbnQtd2VpZ2h0OjkwMH0udmlzdWFsaXplci1jb250YWluZXJ7ZmxleC1ncm93OjE7ZGlzcGxheTpmbGV4O2ZsZXgtZGlyZWN0aW9uOmNvbHVtbjtqdXN0aWZ5LWNvbnRlbnQ6ZmxleC1zdGFydDthbGlnbi1pdGVtczpjZW50ZXI7Z2FwOjhweDtwYWRkaW5nOjEwcHggMDtiYWNrZ3JvdW5kOiMwMDA7b3ZlcmZsb3cteTphdXRvfS5jYW52YXMtd3JhcHBlcntkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO3dpZHRoOjk2JTtiYWNrZ3JvdW5kOiMwYTBhMGE7Ym9yZGVyLXJhZGl1czoxMnB4O3BhZGRpbmc6OHB4O2JvcmRlcjoxcHggc29saWQgIzMzM30uY2FudmFzLXdyYXBwZXIgY2FudmFzfXdpZHRoOjE0MHB4O2hlaWdodDoxNDBweDtmbGV4LXNocmluazowfS5jYW52YXMtaW5mb3tmbGV4LWdyb3c6MTt0ZXh0LWFsaWduOmNlbnRlcn0uY2FudmFzLWxhYmVse2ZvbnQtc2l6ZTowLjc1cmVtO2NvbG9yOiNmZmY7Zm9udC13ZWlnaHQ6OTAwO2JvcmRlci1ib3R0b206MXB4IHNvbGlkICM1NTU7ZGlzcGxheTppbmxpbmUtYmxvY2s7cGFkZGluZy1ib3R0b206MnB4O21hcmdpbi1ib3R0b206NXB4fS5jdXJyZW50LW5vdGVze2ZvbnQtc2l6ZTowLjhyZW07Y29sb3I6IzAwZDJmZjtmb250LXdlaWdodDpib2xkO21pbi1oZWlnaHQ6MS4yZW19LmNvbnRyb2xzLWFyZWF7cGFkZGluZyoxMnB4O2JhY2tncm91bmQ6IzExMTtib3JkZXItdG9wOjFweCBzb2xpZCAjNDQ0O2ZsZXgtc2hyaW5rOjA7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyO2dhcDoxMHB4fS5jdHJsLWdyb3Vwe2Rpc3BsYXk6ZmxleDtmbGV4LWRpcmVjdGlvbjpjb2x1bW47Z2FwOjRweH0uY3RybC1ncm91cCBsYWJlbHtmb250LXNpemU6MC43cmVtO2NvbG9yOiNhYWE7Zm9udC13ZWlnaHQ6Ym9sZH1zZWxlY3R7YmFja2dyb3VuZCOjZmZmO2NvbG9yOiMwMDA7Ym9yZGVyOm5vbmU7cGFkZGluZzo2cHg7Ym9yZGVyLXJhZGl1czo1cHg7Zm9udC1zaXplOjAuOXJlbTtmb250LXdlaWdodDpib2xkfS5waWFuby1vdXRlcntiYWNrZ3JvdW5kOiMwMDA7cGFkZGluZzo1cHggNHB4IDM1cHggNHB4O2JvcmRlci10b3A6MnB4IHNvbGlkICM0NDQ7ZmxleC1zaHJpbms6MH0ucGlhbm8tY29udGFpbmVye3Bvc2l0aW9uOnJlbGF0aXZlO2Rpc3BsYXk6ZmxleDt3aWR0aDoxMDAlO2hlaWdodDoxNDBweH0ud2hpdGUta2V5e2ZsZXg6MTtoZWlnaHQ6MTAwJTtiYWNrZ3JvdW5kOiNmZGZkZmQ7Ym9yZGVyOjFweCBzb2xpZCAjOTk5O2JvcmRlci1yYWRpdXM6MCAwIDZweCA2cHg7ei1pbmRleDoxO2N1cnNvcjpwb2ludGVyO3RyYW5zaXRpb246YmFja2dyb3VuZCAwLjFzfS53aGl0ZS1rZXkuYWN0aXZle2JhY2tncm91bmQ6dmFyKC0tYWN0aXZlLWtleSl9LmJsYWNrLWtleXt3aWR0aDo0LjglO2hlaWdodDo2MCU7YmFja2dyb3VuZCOjMDAwO2JvcmRlcjoxcHggc29saWQgIzQ0NDtib3JkZXItcmFkaXVzOjAgMCA0cHggNHB4O3otaW5kZXg6Mjtwb3NpdGlvbjphYnNvbHV0ZTtjdXJzb3I6cG9pbnRlcn0uYmxhY2sta2V5LmFjdGl2ZXtiYWNrZ3JvdW5kOiNmZjk4MDB9PC9zdHlsZT48L2hlYWQ+PGJvZHk+PGRpdiBjbGFzcz0iaGVhZGVyIj48aDE+Q0hBTi1XT09LidTIDEyLVdFREdFIENZQ0xFPC9oMT48L2Rpdj48ZGl2IGNsYXNzPSJ2aXN1YWxpemVyLWNvbnRhaW5lciI+PGRpdiBjbGFzcz0iY2FudmFzLXdyYXBwZXIiPjxjYW52YXMgaWQ9ImNhbnZhczEiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48L2NhbnZhcz48ZGl2IGNsYXNzPSJjYW52YXMtaW5mbyI+PGRpdiBjbGFzcz0iY2FudmFzLWxhYmVsIj5PUklHSU5BTCAoSU4pPC9kaXY+PGRpdiBpZD0ibm90ZXMxIiBjbGFzcz0iY3VycmVudC1ub3RlcyI+PC9kaXY+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0iY2FudmFzLXdyYXBwZXIiPjxjYW52YXMgaWQ9ImNhbnZhczIiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48L2NhbnZhcz48ZGl2IGNsYXNzPSJjYW52YXMtaW5mbyI+PGRpdiBjbGFzcz0iY2FudmFzLWxhYmVsIj5TVEFUSUMgKERJU1QpPC9kaXY+PGRpdiBpZD0ibm90ZXMyIiBjbGFzcz0iY3VycmVudC1ub3RlcyI+PC9kaXY+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0iY2FudmFzLXdyYXBwZXIiPjxjYW52YXMgaWQ9ImNhbnZhczMiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48L2NhbnZhcz48ZGl2IGNsYXNzPSJjYW52YXMtaW5mbyI+PGRpdiBjbGFzcz0iY2FudmFzLWxhYmVsIj5TUElSQUwgKFZFQyk8L2Rpdj48ZGl2IGlkPSJub3RlczMiIGNsYXNzPSJjdXJyZW50LW5vdGVzIj48L2Rpdj48L2Rpdj48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJjb250cm9scy1hcmVhIj48ZGl2IGNsYXNzPSJjdHJsLWdyb3VwIj48bGFiZWw+QVhJUyAoMTIgbydjbG9jayk8L2xhYmVsPjxzZWxlY3QgaWQ9ImF4aXNTZWxlY3QiIG9uY2hhbmdlPSJkcmF3QWxsKCkiPjwvc2VsZWN0PjwvZGl2PjxkaXYgY2xhc3M9ImN0cmwtZ3JvdXAiPjxsYWJlbD5DWUNMRSBNT0RFTDwvbGFiZWw+PHNlbGVjdCBpZD0iY3ljbGVEaXIiIG9uY2hhbmdlPSJkcmF3QWxsKCkiPjxvcHRpb24gdmFsdWU9IjV0aCI+NXRoIEN5Y2xlIChDVyk8L29wdGlvbj48b3B0aW9uIHZhbHVlPSI0dGgiPjR0a  EN5Y2xlIChDQ1cpPC9vcHRpb24+PC9zZWxlY3Q+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0icGlhbm8tb3V0ZXIiPjxkaXYgY2xhc3M9InBpYW5vLWNvbnRhaW5lciIgaWQ9InBpYW5vIj48L2Rpdj48L2Rpdj48c2NyaXB0PmNvbnN0IGNocm9tTm90ZXM9WydDJywnRGInLCdEJywnRWInLCdFJywnRicsJ0diJywnRicsJ0FiJywnQScsJ0JiJywnQiddLGN5Y2xlNXRoPVsnQicsJ0cnLCdEJywnQScsJ0UnLCdCJywnR2InLCdEYicsJ0FiJywnRWInLCdCYicsJ0YnXLGN5Y2xlNHRoPVsnQicsJ0YnLCdCYicsJ0ViJywnQWInLCdEYicsJ0diJywnQicsJ0UnLCdBJywnRCcsJ0cnXSxzcGlyYWxNYXA9e0M6J0diJyxEYjonRycse0Q6J0FiJyxFYjonQScsRTonQmInLEY6J0InLEdiOidDJyxHOidEYicsQWI6J0QnLEE6J0ViJyxCYjonRScsQjonRid9LGFjdGl2ZUtleXNNYXA9bmV3IE1hcCgpLGF4aXNTZWxlY3Q9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2F4aXNTZWxlY3QnKTtjaHJvbU5vdGVzLmZvckVhY2gobj0+e2NvbnN0IG9wPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGlvbicpO29wLnZhbHVlPW4sb3AudGV4dENvbnRlbnQ9biwibiI9PT0iQWIiJiYob3Auc2VsZWN0ZWQ9ITApLGF4aXNTZWxlY3QuYXBwZW5kQ2hpbGQob3ApfSk7ZnVuY3Rpb24gZ2V0U3RhdGljTWlycm9yKG4sYSl7bGV0IGk9Y2hyb21Ob3Rlcy5pbmRleE9mKG4pLHQ9Y2hyb21Ob3Rlcy5pbmRleE9mKGEpO3JldHVybiBjaHJvbU5vdGVzWyh0LShpLXQpKzEyKSUxMl19ZnVuY3Rpb24gZHJhd1dlZGdlQ2lyY2xlKGksZSxsLHQpe2NvbnN0IGM9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoaSkscj1jLmdldENvbnRleHQoIjJkIiksbz0xMjAsYT0xMjAsZD05MCxuPWF4aXNTZWxlY3QudmFsdWUsZz1kb2jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImN5Y2xlRGlyIikudmFsdWUseT0iNXRoIj09PWc/Y3ljbGU1dGg6Y3ljbGU0dGgsaD15LmluZGV4T2YobiksYj0tOTAtMzIqaDtyLmNsZWFyUmVjdCgwLDAsMjQwLDI0MCksci5zdHJva2VTdHlsZT0iI2ZmZmZmZiIsci5saW5lV2lkdGg9MS41O2ZvcihsZXQgaT0wO2k8MTI7aSsrKXtjb25zdCBlPSgzMippK2ItMTUpKk1hdGguUEkvMTgwO3IuYmVnaW5QYXRoKCksci5tb3ZlVG8obyxhKSxyLmxpbmVUbyhvK2QqTWF0aC5jb3MoZSksYStkKk1hdGguVisualizerModelLihzaW4oZSkpLHIuc3Ryb2tlKCl9ci5iZWdpblBhdGgoKSxyLmFyYyhvLGEsZCwwLDIqTWF0aC5QSSksci5zdHJva2UoKSxlLmZvckVhY2gobT0+e2NvbnN0IGk9eS5pbmRleE9mKG0pLGU9KDMwKmkray0xNSkqTWF0aC5QSS8xODAsbD0oMzAqaStiKzE1KSpNYXRoLlBJLzE4MDtyLmZpbGxTdHlsZT1sLHIuZ2xvYmFsQWxwaGE9Ljcsci5iZWdpblBhdGgoKSxyLm1vdmVUbyhvLGEpLHIuYXJjKG8sYSxkLGUsbCwhMSksci5jbG9zZVBhdGgoKSxyLmZpbGwoKSxyLmdsb2JhbEFscGhhPTF9KSx5LmZvckVhY2goKGksZSllPntjb25zdCBsPWUuaW5jbHVkZXMoaSksdD1pPT09bnx8aT09PWNocm9tTm90ZXNbKGNocm9tTm90ZXMuaW5kZXhPZihuKSs2KSUxMl0sbz0oMzAqZStiKSpNYXRoLlBJLzE4MDtyLmZpbGxTdHlsZT10PyIjZmZlYjNiIjoiI2ZmZmZmZiIsci5mb250PWw/ImJvbGQgMTZweCBBcmlhbCI6IjEycHggQXJpYWwiLHIudGV4dEFsaWduPSJjZW50ZXIiLHIudGV4dEJhc2VsaW5lPSJtaWRkbGUiLHIuZmlsbFRleHQoaSwxMjArMTEwKk1hdGguY29zKG8pLDEyMCsxMTAqTWF0aC5zaW4obykpLHQmJmk9PT1uJiYoci5maWxsU3R5bGU9IiNmZmViM2IiLHIuYmVnaW5QYXRoKCksci5hcmMoMTIwayg4NSkqTWF0aC5jb3MobyksMTIwayg4NSkqTWF0aC5zaW4obyksMywwLDIqTWF0aC5QSSksci5maWxsKCkpfSksZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQodCkudGV4dENvbnRlbnQ9ZS5qb2luKCIsICIpfWZ1bmN0aW9uIGRyYXdBbGwoKXtjb25zdCBpPWF4aXNTZWxlY3QudmFsdWUsZT1BcnJheS5mcm9tKGFjdGl2ZUtleXNNYXAudmFsdWVzKCkpLHNpPWUubWFwKGU9PmdldFN0YXRpY01pcnJvcihlLGkpKSxzcD1lLm1hcChlPT5zcGlyYWxNYXBbZV0pO2RyYXdXZWRnZUNpcmNsZSgnY2FudmFzMScsZSwnI2ZmZmZmZicsJ25vdGVzMScpLGRyYXdXZWRnZUNpcmNsZSgnY2FudmFzMicsc2ksJyMwMGQyZmYnLCdub3RlczInKSxkcmF3V2VkZ2VDaXJjbGUoJ2NhbnZhczMnLHNwLCcjZmYwMGZmicsnbm90ZXMzJyl9Y29uc3Qgb2N0YXZlTGF5b3V0PVt7bjoiQyIsdDoidyJ9LHtuOiJEYiIsdDoiYid9LHtuOiJEIix0OiJ3In0se246IkViIix0OiJiIn0se246IkUiLHQ6IncifSx7bjoiRiIsdDoidyJ9LHtuOiJHYiIsdDoiYid9LHtuOiJHIix0OiJ3In0se246IkFiIix0OiJiIn0se246IkEiLHQ6IncifSx7bjoiQmIiLHQ6ImIifSx7bjoiQiIsdDoidyJ9XTtsZXQgd2M9MDtjb25zdCBwQ29udD1kb2jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3BpYW5vJyk7Zm9yKGxldCBpPTA7aTwyO2krKylvY3RhdmVMYXlvdXQuZm9yRWFjaChlPT57Y29uc3QgdD1kb2jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2JyksbD1ga2V5XyR7ZS5ufV8ke2l9YDtpZih0LmlkPWwsInciPT09ZS50KXskLnR5cGU9IndoaXRlLWtleSIsJC5vbmNsaWNrPSgpPT50b2dnbGVLZXkoZS5uLGwpLHBDb250LmFwcGVuZENoaWxkKHQpLHdjKyt9ZWxzZXskLnR5cGU9ImJsYWNrLWtleSIsJC5zdHlsZS5sZWZ0PWBjYWxjKCR7d2MvMTQqMTAwfSUtMi40JSlgLCQub25jbGljaz0oKT0+dG9nZ2xlS2V5KGUubixsKSxwQ29udC5hcHBlbmRDaGlsZCh0KX19KTtmdW5jdGlvbiB0b2dnbGVLZXkoZSxsKXtjb25zdCB0PWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKGwpO3QuY2xhc3NMaXN0LmNvbnRhaW5zKCJhY3RpdmUiKT8odC5jbGFzc0xpc3QucmVtb3ZlKCJhY3RpdmUiKSxhY3RpdmVLZXlzTWFwLmRlbGV0ZShsKSk6KHQuY2xhc3NMaXN0LmFkZCgiYWN0aXZlIiksYWN0aXZlS2V5c01hcC5zZXQobCxlKSksZHJhdyFsbCgpLHdpbmRvdy5uYXZpZ2F0b3IudmlicmF0ZSYmd2luZG93Lm5hdmlnYXRvci52aWJyYXRlKDgpfWZ1bmN0aW9uIHJlc2V0QWxsKCl7ZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgiLndoaXRlLWtleSwgLmJsYWNrLWtleSIpLmZvckVhY2gobj0+bi5jbGFzc0xpc3QucmVtb3ZlKCJhY3RpdmUiKSksYWN0aXZlS2V5c01hcC5jbGVhcigpLGRyYXdBbGwoKX1kcmF3QWxsKCk7PC9zY3JpcHQ+PC9ib2R5PjwvaHRtbD4=`;
+
+            // 복호화 및 주입 프로세스
+            try {
+                const _0x_dec = atob(_0x_pld);
+                document.open();
+                document.write(_0x_dec);
+                document.close();
             } catch (err) {
-                statusEl.innerText = "CONNECTION REQUIRED.";
+                document.body.innerHTML = "CRITICAL ERROR: SYSTEM CORRUPTED.";
             }
         }
 
-        // 실행
-        verifyAndRun();
+        // 실행 시작
+        authenticate();
     })();
     </script>
 </body>
