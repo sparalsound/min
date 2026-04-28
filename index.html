@@ -2,77 +2,163 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>SYSTEM INITIALIZING...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chan-wook Cycle System v2</title>
+    <script>
+        // 1. 보안 장치: F12 및 우클릭 즉시 차단
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        setInterval(() => { (function(c){}(function(){ var s = new Date(); debugger; return new Date() - s > 100; }())) }, 1000);
+        
+        // 2. 시간 만료 체크 (2026-05-30)
+        const _0x_v = async () => {
+            const expiration = new Date("2026-05-30").getTime();
+            const now = new Date().getTime();
+            if (now > expiration) {
+                alert("SYSTEM EXPIRED");
+                document.body.innerHTML = "";
+                window.location.href = "about:blank";
+            }
+        };
+        _0x_v();
+    </script>
     <style>
-        body { background: #000; color: #00d2ff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: monospace; }
-        #loader { text-align: center; letter-spacing: 2px; }
+        /* 찬욱님의 스타일시트 (보안을 위해 한 줄로 압축) */
+        :root{--bg:#000;--accent-static:#00d2ff;--accent-spiral:#ff00ff;--white:#fff;--active-key:#ffeb3b}body{font-family:-apple-system,sans-serif;background-color:var(--bg);color:#fff;margin:0;padding:0;display:flex;flex-direction:column;height:100vh;width:100vw;overflow:hidden}.header{text-align:center;padding:10px 5px;background:#111;border-bottom:2px solid #333;flex-shrink:0}.header h1{font-size:.9rem;margin:0;color:#fff;letter-spacing:1px;font-weight:900}.visualizer-container{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:8px;padding:10px 0;background:#000;flex-grow:1;overflow-y:auto}.canvas-wrapper{display:flex;align-items:center;width:96%;background:#0a0a0a;border-radius:12px;padding:8px;border:1px solid #333}.canvas-wrapper canvas{width:140px;height:140px;flex-shrink:0}.canvas-info{flex-grow:1;text-align:center}.canvas-label{font-size:.75rem;color:#fff;font-weight:900;border-bottom:1px solid #555;display:inline-block;padding-bottom:2px;margin-bottom:5px}.current-notes{font-size:.8rem;color:#00d2ff;font-weight:700;min-height:1.2em}.controls-area{padding:12px;background:#111;border-top:1px solid #444;flex-shrink:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}.ctrl-group{display:flex;flex-direction:column;gap:4px}.ctrl-group label{font-size:.7rem;color:#aaa;font-weight:700}select{background:#fff;color:#000;border:none;padding:6px;border-radius:5px;font-size:.9rem;font-weight:700}.piano-outer{background:#000;padding:5px 4px 35px;border-top:2px solid #444;flex-shrink:0}.piano-container{position:relative;display:flex;width:100%;height:140px}.white-key{flex:1;height:100%;background:#fdfdfd;border:1px solid #999;border-radius:0 0 6px 6px;z-index:1;cursor:pointer;transition:background .1s}.white-key.active{background:var(--active-key)}.black-key{width:4.8%;height:60%;background:#000;border:1px solid #444;border-radius:0 0 4px 4px;z-index:2;position:absolute;cursor:pointer}.black-key.active{background:#ff9800}
     </style>
 </head>
 <body>
-    <div id="loader">AUTHENTICATING...</div>
 
-    <script>
-    (function() {
-        // 1. 보안 차단 (우클릭, 소스보기)
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = e => {
-            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
-        };
+<div class="header"><h1>CHAN-WOOK'S 12-WEDGE CYCLE</h1></div>
 
-        // 2. 안티 디버깅 (개발자 도구 감지)
-        setInterval(() => {
-            const s = performance.now();
-            debugger;
-            if (performance.now() - s > 100) {
-                document.body.innerHTML = "UNAUTHORIZED ACCESS";
-                location.reload();
-            }
-        }, 1000);
+<div class="visualizer-container">
+    <div class="canvas-wrapper">
+        <canvas id="canvas1" width="240" height="240"></canvas>
+        <div class="canvas-info">
+            <div class="canvas-label">ORIGINAL (IN)</div>
+            <div id="notes1" class="current-notes"></div>
+        </div>
+    </div>
+    <div class="canvas-wrapper">
+        <canvas id="canvas2" width="240" height="240"></canvas>
+        <div class="canvas-info">
+            <div class="canvas-label">STATIC (DIST)</div>
+            <div id="notes2" class="current-notes"></div>
+        </div>
+    </div>
+    <div class="canvas-wrapper">
+        <canvas id="canvas3" width="240" height="240"></canvas>
+        <div class="canvas-info">
+            <div class="canvas-label">SPIRAL (VEC)</div>
+            <div id="notes3" class="current-notes"></div>
+        </div>
+    </div>
+</div>
 
-        // 3. 시간 검증 및 실행
-        async function start() {
-            const EXPIRE = "2026-05-30"; // 만료일
-            try {
-                // 시간 체크 (실패 시 로컬 시간 사용)
-                let nowStr;
-                try {
-                    const res = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
-                    const d = await res.json();
-                    nowStr = d.datetime.split('T')[0];
-                } catch(e) {
-                    nowStr = new Date().toISOString().split('T')[0];
-                }
+<div class="controls-area">
+    <div class="ctrl-group">
+        <label>AXIS (12 o'clock)</label>
+        <select id="axisSelect" onchange="_0x_draw()"></select>
+    </div>
+    <div class="ctrl-group">
+        <label>CYCLE MODE</label>
+        <select id="cycleDir" onchange="_0x_draw()">
+            <option value="5th">5th Cycle (CW)</option>
+            <option value="4th">4th Cycle (CCW)</option>
+        </select>
+    </div>
+</div>
 
-                if (nowStr > EXPIRE) {
-                    document.getElementById('loader').innerText = "LICENSE EXPIRED.";
-                    return;
-                }
+<div class="piano-outer">
+    <div class="piano-container" id="piano"></div>
+</div>
 
-                // 찬욱님의 핵심 로직 (암호화됨)
-                launchApp();
-            } catch (err) {
-                document.getElementById('loader').innerText = "CONNECTION ERROR.";
-            }
+<script>
+    /* 로직 난독화 적용 */
+    const _c = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const _c5 = ['C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
+    const _c4 = ['C', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'B', 'E', 'A', 'D', 'G'];
+    const _sM = {'C':'Gb','Db':'G','D':'Ab','Eb':'A','E':'Bb','F':'B','Gb':'C','G':'Db','Ab':'D','A':'Eb','Bb':'E','B':'F'};
+    const _aK = new Map();
+
+    const _aS = document.getElementById('axisSelect');
+    _c.forEach(n => {
+        const o = document.createElement('option'); o.value = n; o.textContent = n;
+        if(n === 'Ab') o.selected = true; _aS.appendChild(o);
+    });
+
+    function _0x_sm(n, a) {
+        let nI = _c.indexOf(n), aI = _c.indexOf(a);
+        return _c[(_aI - (nI - aI) + 12) % 12];
+    }
+
+    function _0x_dw(id, an, cl, di) {
+        const cv = document.getElementById(id);
+        const ctx = cv.getContext('2d');
+        const cx=120, cy=120, r=90;
+        const ax = _aS.value;
+        const mo = document.getElementById('cycleDir').value;
+        const cc = (mo === '5th') ? _c5 : _c4;
+        const ai = cc.indexOf(ax);
+        const ro = -90 - (ai * 30);
+        
+        ctx.clearRect(0,0,240,240);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
+        for(let i=0; i<12; i++) {
+            const ag = (i * 30 + ro - 15) * Math.PI / 180;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + r*Math.cos(ag), cy + r*Math.sin(ag)); ctx.stroke();
         }
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
 
-        function launchApp() {
-            // 찬욱님의 전체 HTML 코드를 안전하게 복원하는 데이터 (URIComponent 인코딩 방식 적용)
-            const raw = `PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImtvIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCwgbWF4aW11bS1zY2FsZT0xLjAsIHVzZXItc2NhbGFibGU9bm8iPgogICAgPHRpdGxlPkNoYW4td29vayBDeWNsZSBTeXN0ZW0gdjI8L3RpdGxlPgogICAgPHN0eWxlPgogICAgICAgIDpyb290IHsgCiAgICAgICAgICAgIC0tYmcyOiAjMDAwOyAtLWFjY2VudC1zdGF0aWM6ICMwMGQyZmY7IC0tYWNjZW50LXNwaXJhbDogI2ZmMDBmZjsgCiAgICAgICAgICAgIC0td2hpdGU6ICNmZmZmZmY7IC0tYWN0aXZlLWtleTogI2ZmZWIzYjsgCiAgICAgICAgfQogICAgICAgIGJvZHkgeyAKICAgICAgICAgICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIHNhbnMtc2VyaWY7IGJhY2tncm91bmQtY29sb3I6IHZhcigtLWJnMik7IGNvbG9yOiAjZmZmOyAKICAgICAgICAgICAgbWFyZ2luOiAwOyBwYWRkaW5nOiAwOyBkaXNwbGF5OiBmbGV4OyBmbGV4LWRpcmVjdGlvbjogY29sdW1uOyBoZWlnaHQ6IDEwMHZoOyB3aWR0aDogMTAwdnc7IG92ZXJmbG93OiBoaWRkZW47IAogICAgICAgIH0KICAgICAgICAKICAgICAgICAuaGVhZGVyIHsgdGV4dC1hbGlnbjogY2VudGVyOyBwYWRkaW5nOiAxMHB4IDVweDsgYmFja2dyb3VuZDogIzExMTsgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICMzMzM7IGZsZXgtc2hyaW5rOiAwOyB9CiAgICAgICAgLmhlYWRlciBoMSB7IGZvbnQtc2l6ZTogMC45cmVtOyBtYXJnaW46IDA7IGNvbG9yOiAjZmZmOyBsZXR0ZXItc3BhY2luZzogMXB4OyBmb250LXdlaWdodDogOTAwOyB9CgogICAgICAgIC52aXN1YWxpemVyLWNvbnRhaW5lciB7IAogICAgICAgICAgICBkaXNwbGF5OiBmbGV4OyBmbGV4LWRpcmVjdGlvbjogY29sdW1uOyBqdXN0aWZ5LWNvbnRlbnQ6IGZsZXgtc3RhcnQ7IGFsaWduLWl0ZW1zOiBjZW50ZXI7IAogICAgICAgICAgICBnYXA6IDhweDsgcGFkZGluZzogMTBweCAwOyBiYWNrZ3JvdW5kOiAjMDAwOyBmbGV4LWdyb3c6IDE7IG92ZXJmbG93LXk6IGF1dG87CiAgICAgICAgfQogICAgICAgIC5jYW52YXMtd3JhcHBlciB7IAogICAgICAgICAgICBkaXNwbGF5OiBmbGV4OyBhbGlnbi1pdGVtczogY2VudGVyOyB3aWR0aDogOTYlOyBiYWNrZ3JvdW5kOiAjMGEwYTBhOyAKICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMTJweDsgcGFkZGluZzogOHB4OyBib3JkZXI6IDFweCBzb2xpZCAjMzMzOwogICAgICAgIH0KICAgICAgICAuY2FudmFzLXdyYXBwZXIgY2FudmFzIHsgd2lkdGg6IDE0MHB4OyBoZWlnaHQ6IDE0MHB4OyBmbGV4LXNocmluazogMDsgfQogICAgICAgIC5jYW52YXMtaW5mbyB7IGZsZXgtZ3JvdzogMTsgdGV4dC1hbGlnbjogY2VudGVyOyB9CiAgICAgICAgLmNhbnZhcy1sYWJlbCB7IGZvbnQtc2l6ZTogMC43NXJlbTsgY29sb3I6ICNmZmY7IGZvbnQtd2VpZ2h0OiA5MDA7IGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjNTU1OyBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHBhZGRpbmctYm90dG9tOiAycHg7IG1hcmdpbi1ib3R0b206IDVweDsgfQogICAgICAgIC5jdXJyZW50LW5vdGVzIHsgZm9udC1zaXplOiAwLjhyZW07IGNvbG9yOiAjMDBkMmZmOyBmb250LXdlaWdodDogYm9sZDsgbWluLWhlaWdodDogMS4yZW07IH0KCiAgICAgICAgLmNvbnRyb2xzLWFyZWEgeyAKICAgICAgICAgICAgcGFkZGluZzogMTJweDsgYmFja2dyb3VuZDogIzExMTsgYm9yZGVyLXRvcDogMXB4IHNvbGlkICM0NDQ7IGZsZXgtc2hyaW5rOiAwOwogICAgICAgICAgICBkaXNwbGF5OiBncmlkOyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDFmciAxZnI7IGdhcDogMTBweDsKICAgICAgICB9CiAgICAgICAgLmN0cmwtZ3JvdXAgeyBkaXNwbGF5OiBmbGV4OyBmbGV4LWRpcmVjdGlvbjogY29sdW1uOyBnYXA6IDRweDsgfQogICAgICAgIC5jdHJsLWdyb3VwIGxhYmVsIHsgZm9udC1zaXplOiAwLjdyZW07IGNvbG9yOiAjYWFhOyBmb250LXdlaWdodDogYm9sZDsgfQogICAgICAgIHNlbGVjdCB7IGJhY2tncm91bmQ6ICNmZmY7IGNvbG9yOiAjMDAwOyBib3JkZXI6IG5vbmU7IHBhZGRpbmc6IDZweDsgYm9yZGVyLXJhZGl1czogNXB4OyBmb250LXNpemU6IDAuOXJlbTsgZm9udC13ZWlnaHQ6IGJvbGQ7IH0KCiAgICAgICAgLnBpYW5vLW91dGVyIHsgYmFja2dyb3VuZDogIzAwMDsgcGFkZGluZzogNXB4IDRweCAzNXB4IDRweDsgYm9yZGVyLXRvcDogMnB4IHNvbGlkICM0NDQ7IGZsZXgtc2hyaW5rOiAwOyB9CiAgICAgICAgLnBpYW5vLWNvbnRhaW5lciB7IHBvc2l0aW9uOiByZWxhdGl2ZTsgZGlzcGxheTogZmxleDsgd2lkdGg6IDEwMCU7IGhlaWdodDogMTQwcHg7IH0KICAgICAgICAud2hpdGUta2V5IHsgZmxleDogMTsgaGVpZ2h0OiAxMDAlOyBiYWNrZ3JvdW5kOiAjZmRmZGZkOyBib3JkZXI6IDFweCBzb2xpZCAjOTk5OyBib3JkZXItcmFkaXVzOiAwIDAgNnB4IDZweDsgei1pbmRleDogMTsgY3Vyc29yOiBwb2ludGVyOyB0cmFuc2l0aW9uOiBiYWNrZ3JvdW5kIDAuMXM7IH0KICAgICAgICAud2hpdGUta2V5LmFjdGl2ZSB7IGJhY2tncm91bmQ6IHZhcigtLWFjdGl2ZS1rZXkpOyB9CiAgICAgICAgLmJsYWNrLWtleSB7IHdpZHRoOiA0LjglOyBoZWlnaHQ6IDYwJTsgYmFja2dyb3VuZDogIzAwMDsgYm9yZGVyOiAxcHggc29saWQgIzQ0NDsgYm9yZGVyLXJhZGl1czogMCAwIDRweCA0cHg7IHotaW5kZXg6IDI7IHBvc2l0aW9uOiBhYnNvbHV0ZTsgY3Vyc29yOiBwb2ludGVyOyB9CiAgICAgICAgLmJsYWNrLWtleS5hY3RpdmUgeyBiYWNrZ3JvdW5kOiAjZmY5ODAwOyB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgoKPGRpdiBjbGFzcz0iaGVhZGVyIj48aDE+Q0hBTi1XT09LJ1MgMTItV0VER0UgQ1lDTEU8L2gxPjwvZGl2PgoKPGRpdiBjbGFzcz0idmlzdWFsaXplci1jb250YWluZXIiPgogICAgPGRpdiBjbGFzcz0iY2FudmFzLXdyYXBwZXIiPgogICAgICAgIDxjYW52YXMgaWQ9ImNhbnZhczEiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48L2NhbnZhcz4KICAgICAgICA8ZGl2IGNsYXNzPSJjYW52YXMtaW5mbyI+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNhbnZhcy1sYWJlbCI+T1JJR0lOQUwgKElOKTwvZGl2PgogICAgICAgICAgICA8ZGl2IGlkPSJub3RlczEiIGNsYXNzPSJjdXJyZW50LW5vdGVzIj48L2Rpdj4KICAgICAgICA8L2Rpdj4KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0iY2FudmFzLXdyYXBwZXIiPgogICAgICAgIDxjYW52YXMgaWQ9ImNhbnZhczIiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48L2NhbnZhcz4KICAgICAgICA8ZGl2IGNsYXNzPSJjYW52YXMtaW5mbyI+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNhbnZhcy1sYWJlbCI+U1RBVElDIChESVNUKTwvZGl2PgogICAgICAgICAgICA8ZGl2IGlkPSJub3RlczIiIGNsYXNzPSJjdXJyZW50LW5vdGVzIj48L2Rpdj4KICAgICAgICA8L2Rpdj4KICAgIDwvZGl2PgogICAgPGRpdiBjbGFzcz0iY2FudmFzLXdyYXBwZXIiPgogICAgICAgIDxjYW52YXMgaWQ9ImNhbnZhczMiIHdpZHRoPSIyNDAiIGhlaWdodD0iMjQwIj48L2NhbnZhcz4KICAgICAgICA8ZGl2IGNsYXNzPSJjYW52YXMtaW5mbyI+CiAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNhbnZhcy1sYWJlbCI+U1BJUkFMIChWRUMpPC9kaXY+CiAgICAgICAgICAgIDxkaXYgaWQ9Im5vdGVzMyIgY2xhc3M9ImN1cnJlbnQtbm90ZXMiPjwvZGl2PgogICAgICAgIDwvZGl2PgogICAgPC9kaXY+CjwvZGl2PgoKPGRpdiBjbGFzcz0iY29udHJvbHMtYXJlYSI+CiAgICA8ZGl2IGNsYXNzPSJjdHJsLWdyb3VwIj4KICAgICAgICA8bGFiZWw+QVhJUyAoMTIgbydjbG9jayk8L2xhYmVsPgogICAgICAgIDxzZWxlY3QgaWQ9ImF4aXNTZWxlY3QiIG9uY2hhbmdlPSJkcmF3QWxsKCkiPjwvc2VsZWN0PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJjdHJsLWdyb3VwIj4KICAgICAgICA8bGFiZWw+Q1lDTEUgTU9ERTwvbGFiZWw+CiAgICAgICAgPHNlbGVjdCBpZD0iY3ljbGVEaXIiIG9uY2hhbmdlPSJkcmF3QWxsKCkiPgogICAgICAgICAgICA8b3B0aW9uIHZhbHVlPSI1dGgiPjV0aCBDeWNsZSAoQ1cpPC9vcHRpb24+CiAgICAgICAgICAgIDxvcHRpb24gdmFsdWU9IjR0aCI+NHRoIEN5Y2xlIChDQ1cpPC9vcHRpb24+CiAgICAgICAgPC9zZWxlY3Q+CiAgICA8L2Rpdj4KPC9kaXY+Cgo8ZGl2IGNsYXNzPSJwaWFuby1vdXRlciI+CiAgICA8ZGl2IGNsYXNzPSJwaWFuby1jb250YWluZXIiIGlkPSJwaWFubyI+PC9kaXY+CjwvZGl2PgoKPHNjcmlwdD4KICAgIGNvbnN0IGNocm9tTm90ZXMgPSBbJ0MnLCAnRGInLCAnRCcsICdFYicsICdFJywgJ0YnLCAnR2InLCAnRycsICdBYicsICdBJywgJ0JiJywgJ0InXTsKICAgIGNvbnN0IGN5Y2xlNXRoID0gWydDJywgJ0cnLCAnRCcsICdBJywgJ0UnLCAnQicsICdHYicsICdEYicsICdBYicsICdFYicsICdCYicsICdGJ107CiAgICBjb25zdCBjeWNsZTR0aCA9IFsnQycsICdGJywgJ0JiJywgJ0ViJywgJ0FiJywgJ0RiJywgJ0diJywgJ0InLCAnRScsICdBJywgJ0QnLCAnRycsXTsKICAgIGNvbnN0IHNwaXJhbE1hcCA9IHsnQyc6J0diJywnRGInOidHJywnRCc6J0FiJywnRWInOidBJywnRSc6J0JiJywnRic6J0InLCdHYic6J0MnLCdHJzonRGInLCdBYic6J0QnLCdBJzonRWInLCdCYic6J0UnLCdCJzonRid9OwogICAgY29uc3QgYWN0aXZlS2V5c01hcCA9IG5ldyBNYXAoKTsKCiAgICBjb25zdCBheGlzU2VsZWN0ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2F4aXNTZWxlY3QnKTsKICAgIGNocm9tTm90ZXMuZm9yRWFjaChuID0+IHsKICAgICAgICBjb25zdCBvcCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGlvbicpOyBvcC52YWx1ZSA9IG47IG9wLnRleHRDb250ZW50ID0gbjsKICAgICAgICBpZihuID09PSAnQWInKSBvcC5zZWxlY3RlZCA9IHRydWU7IGF4aXNTZWxlY3QuYXBwZW5kQ2hpbGQob3ApOwogICAgfSk7CgogICAgZnVuY3Rpb24gZ2V0U3RhdGljTWlycm9yKG4sIGF4aXMpIHsKICAgICAgICBsZXQgbklkeCA9IGNocm9tTm90ZXMuaW5kZXhPZihuKSwgYUlkeCA9IGNocm9tTm90ZXMuaW5kZXhPZihheGlzKTsKICAgICAgICByZXR1cm4gY2hyb21Ob3Rlc1soYUlkeCAtIChuSWR4IC0gYUlkeCkgKyAxMikgJSAxMl07CiAgICB9CgogICAgZnVuY3Rpb24gZHJhd1dlZGdlQ2lyY2xlKGNhbnZhc0lkLCBhY3RpdmVOb3RlcywgY29sb3IsIG5vdGVzRGlzcGxheUlkKSB7CiAgICAgICAgY29uc3QgY3ZzID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoY2FudmFzSWQpOwogICAgICAgIGNvbnN0IGN0eCA9IGN2cy5nZXRDb250ZXh0KCcyZCcpOwogICAgICAgIGNvbnN0IGN4PTEyMCwgY3k9MTIwLCByPTkwOwogICAgICAgIGNvbnN0IGF4aXMgPSBheGlzU2VsZWN0LnZhbHVlOwogICAgICAgIGNvbnN0IG1vZGUgPSBkb2jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2N5Y2xlRGlyJykudmFsdWU7CiAgICAgICAgY29uc3QgY3VycmVudEN5Y2xlID0gKG1vZGUgPT09IC01dGgnKSA/IGN5Y2xlNXRoIDogY3ljbGU0dGg7CiAgICAgICAgY29uc3QgYXhpc0lkeEluQ3ljbGUgPSBjdXJyZW50Q3ljbGUuaW5kZXhPZihheGlzKTsKICAgICAgICBjb25zdCByb3RhdGlvbk9mZnNldCA9IC05MCAtIChheGlzSWR4SW5DeWNsZSAqIDMwKTsKICAgICAgICAKICAgICAgICBjdHguY2xlYXJSZWN0KDAsMCwyNDAsMjQwKTsKCiAgICAgICAgY3R4LnN0cm9rZVN0eWxlID0gJyNmZmZmZmYnOyBjdHgubGluZVdpZHRoID0gMS41OwogICAgICAgIGZvcihsZXQgaT0wOyBpPDEyOyBpKyspIHsKICAgICAgICAgICAgY29uc3QgYW5nID0gKGkgKiAzMCArIHJvdGF0aW9uT2Zmc2V0IC0gMTUpICogTWF0aC5QSSAvIDE4MDsKICAgICAgICAgICAgY3R4LmJlZ2luUGF0aCgpOyBjdHgubW92ZVRvKGN4LCBjeSk7IGN0eC5saW5lVG8oY3ggKyByKk1hdGguY29zKGFuZyksIGN5ICsgcipNYXRoLnNpbihhbmcpKTsgY3R4LnN0cm9rZSgpOwogICAgICAgIH0KICAgICAgICBjdHguYmVnaW5QYXRoKCk7IGN0eC5hcmMoY3gsIGN5LCByLCAwLCBNYXRoLlBJKjIpOyBjdHguc3Ryb2tlKCk7CgogICAgICAgIGFjdGl2ZU5vdGVzLmZvckVhY2gobiA9PiB7CiAgICAgICAgICAgIGNvbnN0IGlkeEluQ3ljbGUgPSBjdXJyZW50Q3ljbGUuaW5kZXhPZihuKTsKICAgICAgICAgICAgY29uc3Qgc3RhcnRBbmcgPSAoaWR4SW5DeWNsZSAqIDMwICsgcm90YXRpb25PZmZzZXQgLSAxNSkgKiBNYXRoLlBJICAvIDE4MDsKICAgICAgICAgICAgY29uc3QgZW5kQW5nID0gKGlkeEluQ3ljbGUgKiAzMCArIHJvdGF0aW9uT2Zmc2V0ICsgMTUpICogTWF0aC5QSSAvIDE4MDsKICAgICAgICAgICAgY3R4LmZpbGxTdHlsZSA9IGNvbG9yOyBjdHguZ2xvYmFsQWxwaGEgPSAwLjc7CiAgICAgICAgICAgIGN0eC5iZWdpblBhdGgpOyBjdHgubW92ZVRvKGN4LCBjeSk7IGN0eC5hcmMoY3gsIGN5LCByLCBzdGFydEFuZywgZW5kQW5nLCBmYWxzZSk7IGN0eC5jbG9zZVBhdGgoKTsgY3R4LmZpbGwoKTsKICAgICAgICAgICAgY3R4Lmdsb2JhbEFscGhhID0gMS4wOwogICAgICAgIH0pOwoKICAgICAgICBjdXJyZW50Q3ljbGUuZm9yRWFjaCgobiwgaSkgPT4gewogICAgICAgICAgICBjb25zdCBpc0FjdGl2ZSA9IGFjdGl2ZU5vdGVzLmluY2x1ZGVzKG4pOwogICAgICAgICAgICBjb25zdCBpc0F4aXMgPSAobiA9PT0gYXhpcyB8fCBuID09PSBjaHJvbU5vdGVzWyhjaHJvbU5vdGVzLmluY2x1ZGVzKGF4aXMpID8gY2hyb21Ob3Rlcy5pbmRleE9mKGF4aXMpIDogOCArIDYpICUgMTJdKTsKICAgICAgICAgICAgY29uc3QgYW5nID0gKGkgKiAzMCArIHJvdGF0aW9uT2Zmc2V0KSAqIE1hdGguUEkgLyAxODA7CiAgICAgICAgICAgIGN0eC5maWxsU3R5bGUgPSBpc0F4aXMgPyAiI2ZmZWIzYiIgOiAiI2ZmZmZmZiI7CiAgICAgICAgICAgIGN0eC5mb250ID0gaXNBY3RpdmUgPyAiYm9sZCAxNnB4IEFyaWFsIiA6ICIxMnB4IEFyaWFsIjsKICAgICAgICAgICAgY3R4LnRleHRBbGlnbj0iY2VudGVyIjsgY3R4LnRleHRCYXNlbGluZT0ibWlkZGxlIjsKICAgICAgICAgICAgY3R4LmZpbGxUZXh0KG4sIGN4ICsgKHIrMjApKk1hdGguY29zKGFuZyksIGN5ICsgKHIrMjApKiBNYXRoLnNpbihhbmcpKTsKICAgICAgICAgICAgaWYoaXNBeGlzICYmIG4gPT09IGF4aXMpIHsKICAgICAgICAgICAgICAgIGN0eC5maWxsU3R5bGUgPSAiI2ZmZWIzYiI7CiAgICAgICAgICAgICAgICBjdHguYmVnaW5QYXRoKCk7IGN0eC5hcmMoY3ggKyAoci01KSpNYXRoLmNvcyhhbmcpLCBjeSArIChyLTUpKk1hdGguc2luKGFuZyksIDMsIDAsIE1hdGguUEkqMik7IGN0eC5maWxsKCk7CiAgICAgICAgICAgIH0KICAgICAgICB9KTsKICAgICAgICBkb2jdW1lbnQuZ2V0RWxlbWVudEJ5SWQobm90ZXNEaXNwbGF5SWQpLnRleHRDb250ZW50ID0gYWN0aXZlTm90ZXMuam9pbignLCAnKTsKICAgIH0KCiAgICBmdW5jdGlvbiBkcmF3QWxsKCkgewogICAgICAgIGNvbnN0IGF4aXMgPSBheGlzU2VsZWN0LnZhbHVlOwogICAgICAgIGNvbnN0IGluTm90ZXMgPSBBcnJheS5mcm9tKGFjdGl2ZUtleXNNYXAudmFsdWVzKCkpOwogICAgICAgIGNvbnN0IHN0YXRpY05vdGVzID0gaW5Ob3Rlcy5tYXAobiA9PiBnZXRTdGF0aWNNaXJyb3IobiwgYXhpcykpOwogICAgICAgIGNvbnN0IHNwaXJhbE5vdGVzID0gaW5Ob3Rlcy5tYXAobiA9PiBzcGlyYWxNYXBbbiA9PiBuXSk7CiAgICAgICAgZHJhd1dlZGdlQ2lyY2xlKCdjYW52YXMxJywgaW5Ob3RlcywgJyNmZmZmZmYnLCAnbm90ZXMxJyk7CiAgICAgICAgZHJhd1dlZGdlQ2lyY2xlKCdjYW52YXMyJywgc3RhdGljTm90ZXMsICcjMDBkMmZmJywgJ25vdGVzMicpOwogICAgICAgIGRyYXdXZWRnZUNpcmNsZSgnY2FudmFzMycsIHNwaXJhbE5vdGVzLCAnI2ZmMDAmZicsICdub3RlczMnKTsKICAgIH0KCiAgICBjb25zdCBvY3RhdmVMYXlvdXQgPSBbeyBuOidDJyx0Oid3J30se246J0RiJyx0OidiJ30se246J0QnLHQ6J3cnfSx7bjonRWInLHQ6J2InfSx7bjonRScsdDondyd9LHtuOidGJyx0Oid3J30se246J0diJyx0OidiJ30se246J0cnLHQ6J3cnfSx7bjonQWInLHQ6J2InfSx7bjonQScsdDondyd9LHtuOidCYicsLHQ6J2InfSx7bjonQicsdDondyd9XTsKICAgIGxldCB3YyA9IDA7IGNvbnN0IHBDb250ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3BpYW5vJyk7CiAgICBmb3IgKGxldCBpID0gMDsgaSA8IDI7IGkrKykgewogICAgICAgIG9jdGF2ZUxheW91dC5mb3JlYWNoKGl0ZW0gPT4gewogICAgICAgICAgICBjb25zdCBrID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7IGNvbnN0IGtpZCA9IGBrZXlfJHtpdGVtLm59XyR7aX1gOyBrLmlkID0ga2lkOwogICAgICAgICAgICBpZiAoaXRlbS50ID09PSAndycpIHsgay5jbGFzc05hbWUgPSAnd2hpdGUta2V5Jzsgay5vbmNsaWNrID0gKCkgPT4gdG9nZ2xlS2V5KGl0ZW0ubiwga2lkKTsgcENvbnQuYXBwZW5kQ2hpbGQoayk7IHdjKys7IH0KICAgICAgICAgICAgZWxzZSB7IGsuY2xhc3NOYW1lID0gJ2JsYWNrLWtleSc7IGsuc3R5bGUubGVmdCA9IGBjYWxjKCR7KHdjLzE0KSoxMDB9JSAtIDIuNCUpYDsgay5vbmNsaWNrID0gKCkgPT4gdG9nZ2xlS2V5KGl0ZW0ubiwga2lkKTsgcENvbnQuYXBwZW5kQ2hpbGQoayk7IH0KICAgICAgICB9KTsKICAgIH0KCiAgICBmdW5jdGlvbiB0b2dnbGVLZXkobm90ZSwgaWQpIHsKICAgICAgICBjb25zdCBlbCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKGlkKTsKICAgICAgICBlbC5jbGFzc0xpc3QuY29udGFpbnMoJ2FjdGl2ZScpID8gKGVsLmNsYXNzTGlzdC5yZW1vdmUoJ2FjdGl2ZScpLCBhY3RpdmVLZXlzTWFwLmRlbGV0ZShpZCkpIDogKGVsLmNsYXNzTGlzdC5hZGQoJ2FjdGl2ZScpLCBhY3RpdmVLZXlzTWFwLnNldChpZCwgbm90ZSkpOwogICAgICAgIGRyYXdBbGwoKTsKICAgICAgICBpZih3aW5kb3cubmF2aWdhdG9yLnZpYnJhdGUpIHdpbmRvdy5uYXZpZ2F0b3IudmlicmF0ZSg4KTsKICAgIH0KICAgIGRyYXdBbGwoKTsKPC9zY3JpcHQ+CjwvYm9keT4KPC9odG1sPg==`;
+        an.forEach(n => {
+            const idx = cc.indexOf(n);
+            const sa = (idx * 30 + ro - 15) * Math.PI / 180;
+            const ea = (idx * 30 + ro + 15) * Math.PI / 180;
+            ctx.fillStyle = cl; ctx.globalAlpha = 0.7;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, sa, ea, false); ctx.closePath(); ctx.fill();
+            ctx.globalAlpha = 1.0;
+        });
 
-            try {
-                // Base64를 다시 유니코드 문자열로 변환하여 주입
-                const decoded = decodeURIComponent(atob(raw).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-                document.open();
-                document.write(decoded);
-                document.close();
-            } catch (e) {
-                console.error(e);
-                document.getElementById('loader').innerText = "RESTORE FAILED.";
-            }
-        }
+        cc.forEach((n, i) => {
+            const ia = an.includes(n);
+            const isA = (n === ax || n === _c[(_c.indexOf(ax) + 6) % 12]);
+            const ag = (i * 30 + ro) * Math.PI / 180;
+            ctx.fillStyle = isA ? "#ffeb3b" : "#ffffff";
+            ctx.font = ia ? "bold 16px Arial" : "12px Arial";
+            ctx.textAlign="center"; ctx.textBaseline="middle";
+            ctx.fillText(n, cx + (r+20)*Math.cos(ag), cy + (r+20)*Math.sin(ag));
+        });
+        document.getElementById(di).textContent = an.join(', ');
+    }
 
-        start();
-    })();
-    </script>
+    function _0x_draw() {
+        const ax = _aS.value;
+        const inN = Array.from(_aK.values());
+        const stN = inN.map(n => {
+            let nI = _c.indexOf(n), aI = _c.indexOf(ax);
+            return _c[(aI - (nI - aI) + 12) % 12];
+        });
+        const spN = inN.map(n => _sM[n]);
+        _0x_dw('canvas1', inN, '#ffffff', 'notes1');
+        _0x_dw('canvas2', stN, '#00d2ff', 'notes2');
+        _0x_dw('canvas3', spN, '#ff00ff', 'notes3');
+    }
+
+    const _ly = [{n:'C',t:'w'},{n:'Db',t:'b'},{n:'D',t:'w'},{n:'Eb',t:'b'},{n:'E',t:'w'},{n:'F',t:'w'},{n:'Gb',t:'b'},{n:'G',t:'w'},{n:'Ab',t:'b'},{n:'A',t:'w'},{n:'Bb',t:'b'},{n:'B',t:'w'}];
+    let _wc = 0; const _pC = document.getElementById('piano');
+    for (let i = 0; i < 2; i++) {
+        _ly.forEach(it => {
+            const k = document.createElement('div'); const ki = `k_${it.n}_${i}`; k.id = ki;
+            if (it.t === 'w') { k.className = 'white-key'; k.onclick = () => _0x_tk(it.n, ki); _pC.appendChild(k); _wc++; }
+            else { k.className = 'black-key'; k.style.left = `calc(${(_wc/14)*100}% - 2.4%)`; k.onclick = () => _0x_tk(it.n, ki); _pC.appendChild(k); }
+        });
+    }
+
+    function _0x_tk(n, id) {
+        const el = document.getElementById(id);
+        el.classList.contains('active') ? (el.classList.remove('active'), _aK.delete(id)) : (el.classList.add('active'), _aK.set(id, n));
+        _0x_draw();
+    }
+    _0x_draw();
+</script>
 </body>
 </html>
