@@ -7,7 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
-        .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        /* 초기에는 컨테이너를 숨김 */
+        .container { 
+            display: none; 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        }
         header { text-align: center; margin-bottom: 40px; }
         h1 { color: #1a2a6c; margin-bottom: 10px; }
         .chart-wrapper { height: 450px; margin-bottom: 50px; }
@@ -22,18 +31,38 @@
         .row-label { text-align: left; font-weight: bold; background-color: #fcfcfc; width: 30%; }
         
         /* 강조 색상 */
-        .increase { color: #e74c3c; font-weight: bold; } /* 계획이 실적보다 높음 (증액) */
-        .decrease { color: #3498db; font-weight: bold; } /* 계획이 실적보다 낮음 (감액) */
+        .increase { color: #e74c3c; font-weight: bold; }
+        .decrease { color: #3498db; font-weight: bold; }
         .summary-box { display: flex; justify-content: space-around; margin-bottom: 30px; background: #f1f3f5; padding: 20px; border-radius: 8px; }
         .stat-item { text-align: center; }
         .stat-value { font-size: 1.4em; font-weight: bold; color: #1a2a6c; }
+
+        /* 잠금 화면 스타일 */
+        #lock-screen {
+            text-align: center;
+            margin-top: 150px;
+        }
+        .btn-auth {
+            padding: 10px 20px;
+            background-color: #1a2a6c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="lock-screen">
+    <h2>🔒 보안 구역</h2>
+    <p>본 페이지를 열람하려면 비밀번호가 필요합니다.</p>
+    <button class="btn-auth" onclick="authenticate()">비밀번호 입력</button>
+</div>
+
+<div class="container" id="main-content">
     <header>
-        <h1>📈 귀여운 민졍이의 26년 사업계획 vs 25년 실적 비교</h1>
+        <h1>📈 26년 사업계획 vs 25년 실적 비교</h1>
         <p>월별 막대 그래프를 클릭하여 전년 실적 대비 상세 계획을 확인하세요.</p>
     </header>
 
@@ -68,61 +97,73 @@
                     <th>증감률(%)</th>
                 </tr>
             </thead>
-            <tbody id="detailTableBody">
-                </tbody>
+            <tbody id="detailTableBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
-    
-    // 이미지 2에서 추출한 25년 월별 실적 (TOTAL)
-    const actual25 = [452317854, 356015839, 377453778, 397142311, 362763413, 414057399, 393077687, 389409657, 392227609, 367922279, 327560673, 369178916];
-    
-    // 이미지 1에서 추출한 26년 월별 계획 (TOTAL)
-    const plan26 = [383531681, 349210358, 344148922, 336375460, 341373592, 364092427, 344050846, 339894064, 363701278, 341129789, 356001414, 368490169];
+    // 설정하실 비밀번호
+    const ACCESS_PASSWORD = "1234"; 
 
-    // 차트 설정
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    const mainChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: months,
-            datasets: [
-                {
-                    label: '25년 실적',
-                    data: actual25,
-                    backgroundColor: '#bdc3c7',
+    function authenticate() {
+        const password = prompt("비밀번호를 입력하세요.");
+        
+        if (password === ACCESS_PASSWORD) {
+            // 인증 성공 시
+            document.getElementById('lock-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            renderChart(); // 차트 그리기 시작
+        } else {
+            alert("비밀번호가 일치하지 않습니다.");
+        }
+    }
+
+    function renderChart() {
+        const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+        const actual25 = [452317854, 356015839, 377453778, 397142311, 362763413, 414057399, 393077687, 389409657, 392227609, 367922279, 327560673, 369178916];
+        const plan26 = [383531681, 349210358, 344148922, 336375460, 341373592, 364092427, 344050846, 339894064, 363701278, 341129789, 356001414, 368490169];
+
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: '25년 실적',
+                        data: actual25,
+                        backgroundColor: '#bdc3c7',
+                    },
+                    {
+                        label: '26년 계획',
+                        data: plan26,
+                        backgroundColor: '#1a2a6c',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toLocaleString()}원`
+                        }
+                    }
                 },
-                {
-                    label: '26년 계획',
-                    data: plan26,
-                    backgroundColor: '#1a2a6c',
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: {
-                    callbacks: {
-                        label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toLocaleString()}원`
+                onClick: (event, activeElements) => {
+                    if (activeElements.length > 0) {
+                        const idx = activeElements[0].index;
+                        showDetail(idx, months, actual25, plan26);
                     }
                 }
-            },
-            onClick: (event, activeElements) => {
-                if (activeElements.length > 0) {
-                    const idx = activeElements[0].index;
-                    showDetail(idx);
-                }
             }
-        }
-    });
+        });
+    }
 
-    function showDetail(monthIdx) {
+    function showDetail(monthIdx, months, actual25, plan26) {
         const detailSection = document.getElementById('detailSection');
         const title = document.getElementById('selectedMonthTitle');
         const tbody = document.getElementById('detailTableBody');
@@ -134,7 +175,6 @@
 
         title.innerText = `${months[monthIdx]} 실적 대비 계획 분석`;
         
-        // 상세 테이블 내용 구성 (총계 위주 예시)
         tbody.innerHTML = `
             <tr>
                 <td class="row-label">총 사업비 (Total)</td>
@@ -155,6 +195,10 @@
         detailSection.style.display = 'block';
         detailSection.scrollIntoView({ behavior: 'smooth' });
     }
+
+    // 접속하자마자 인증창을 띄우고 싶다면 아래 주석을 해제하세요.
+    // window.onload = authenticate;
 </script>
+
 </body>
 </html>
