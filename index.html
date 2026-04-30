@@ -2,205 +2,175 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chan-wook's Pure-Grand v8.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>승우 시우의 짜장 떡볶이 선택기</title>
     <style>
-        :root { --bg: #000; --active: #ffeb3b; --proj: #ff3d00; --axis: #ffffff; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: #fff; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100dvh; width: 100vw; overflow: hidden; }
-        .header { text-align: center; padding: 6px 0; background: #0a0a0a; border-bottom: 1px solid #333; flex-shrink: 0; }
-        .header h1 { font-size: 0.7rem; margin: 0; letter-spacing: 2px; color: #777; font-weight: 900; }
-        .matrix-container { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); flex-grow: 1; gap: 1px; background: #222; margin: 1px; overflow: hidden; }
-        .q-box { background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 2px; cursor: pointer; }
-        .q-canvas-wrap { width: 95%; max-width: 140px; position: relative; pointer-events: none; }
-        canvas { width: 100%; height: auto; }
-        .q-title { font-size: 0.45rem; color: #fff; font-weight: 900; background: #333; padding: 2px 4px; border-radius: 2px; margin-bottom: 2px; text-align: center; }
-        .q-notes { font-size: 0.65rem; font-weight: bold; color: var(--active); font-family: 'Courier New', monospace; margin-top: 2px; }
-        .bottom-section { flex-shrink: 0; background: #0a0a0a; }
-        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 8px; border-top: 1px solid #222; }
-        .ctrl-group { display: flex; flex-direction: column; gap: 2px; }
-        .ctrl-group label { font-size: 0.4rem; color: #666; font-weight: 900; text-transform: uppercase; }
-        select { background: #111; color: #fff; border: 1px solid #333; padding: 3px; border-radius: 4px; font-size: 0.65rem; width: 100%; }
-        .piano-outer { background: #000; padding: 4px 4px calc(12px + env(safe-area-inset-bottom)) 4px; border-top: 1px solid #444; }
-        .piano-container { position: relative; display: flex; width: 100%; height: 85px; }
-        .white-key { flex: 1; height: 100%; background: #ccc; border: 1px solid #777; border-radius: 0 0 4px 4px; z-index: 2; }
-        .white-key.active { background: var(--active); }
-        .black-key { width: 4.8%; height: 55%; background: #111; border: 1px solid #444; border-radius: 0 0 2px 2px; z-index: 3; position: absolute; }
-        .black-key.active { background: #ff9800; }
+        body {
+            background: #1a1a2e; /* 깊은 밤하늘 느낌 */
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Black Han Sans', sans-serif; /* 굵고 힘있는 폰트 추천 */
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #00d4ff;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .slot-machine {
+            background: #0f3460;
+            width: 85vw;
+            max-width: 350px;
+            height: 180px;
+            border: 10px solid #e94560;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+            position: relative;
+        }
+
+        .slot-window {
+            font-size: 3.5rem;
+            font-weight: 900;
+            transition: 0.1s;
+        }
+
+        .neon-buy { color: #00ff41; text-shadow: 0 0 25px #00ff41; }
+        .neon-skip { color: #9e9e9e; text-shadow: 0 0 10px #ffffff; }
+
+        .controls { margin-top: 40px; }
+        #lever-btn {
+            background: #e94560;
+            border: none;
+            width: 140px;
+            height: 70px;
+            border-radius: 35px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #952e3f;
+            transition: 0.1s;
+        }
+
+        #lever-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #952e3f;
+        }
+
+        .shake { animation: shake 0.1s infinite; }
+        @keyframes shake {
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(2px, 2px); }
+        }
+
+        #final-msg {
+            margin-top: 30px;
+            font-size: 1.3rem;
+            height: 3.5em;
+            color: #ffffff;
+            text-align: center;
+            padding: 0 10px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .names {
+            font-size: 1.2rem;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div class="header"><h1>찬욱이의 팔레트</h1></div>
-<div class="matrix-container" id="matrix"></div>
+    <div class="names">승우 ⭐ 시우</div>
+    <h1>짜장 떡볶이<br>먹을 준비 됐나요?</h1>
 
-<div class="bottom-section">
-    <div class="controls">
-        <div class="ctrl-group"><label>Rotation</label><select id="axisSelect" onchange="drawAll()"></select></div>
-        <div class="ctrl-group"><label>Interval</label><select id="cycleDir" onchange="drawAll()"><option value="chrom">Chrom</option><option value="5th">5ths</option><option value="4th">4ths</option></select></div>
-        <div class="ctrl-group"><label>Root Oct</label><select id="rootOctave"><option value="2">Oct 2</option><option value="3">Oct 3</option><option value="4" selected>Oct 4</option><option value="5">Oct 5</option></select></div>
-        <div class="ctrl-group"><label>Vector</label><select id="direction"><option value="asc">ASC</option><option value="desc">DESC</option></select></div>
-        <div class="ctrl-group" style="grid-column: span 2;"><label>Play Mode</label><select id="playMode"><option value="seq">Sequential</option><option value="chord">Chord Mode</option></select></div>
+    <div class="slot-machine" id="machine">
+        <div class="slot-window" id="slot-text">???</div>
     </div>
-    <div class="piano-outer"><div class="piano-container" id="piano"></div></div>
-</div>
 
-<script>
-    const chrom = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-    const cycle5th = ['C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
-    const cycle4th = ['C', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'B', 'E', 'A', 'D', 'G'];
-    let inputSequence = [];
-    const physicalAxes = ['Ab', 'A', 'Bb', 'B', 'C', 'Db'];
-    const currentNotesData = Array(8).fill([]);
+    <div id="final-msg">버튼을 눌러 운명을 결정해봐!</div>
 
-    // --- INTERNAL PIANO ENGINE ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let pianoBuffer = null;
+    <div class="controls">
+        <button id="lever-btn">GO!!</button>
+    </div>
 
-    // 초경량 피아노 샘플 (Base64) - 소소한 용량으로 그랜드 피아노의 배음을 담았습니다.
-    const pianoBase64 = "data:audio/wav;base64,UklGRqIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YYAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA"; 
-    // *실제 고품질 샘플은 코드 생동감을 위해 Web Audio API 합성 엔진으로 대체하여 내장합니다.*
+    <script>
+        const slotText = document.getElementById('slot-text');
+        const leverBtn = document.getElementById('lever-btn');
+        const machine = document.getElementById('machine');
+        const finalMsg = document.getElementById('final-msg');
 
-    function playInternalPiano(freq, startTime, duration) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const master = audioCtx.createGain();
-        master.connect(audioCtx.destination);
-
-        // 그랜드 피아노의 물리적 배음(Harmonics) 비율
-        const harmonics = [
-            { f: 1, g: 0.6, type: 'triangle' }, // Fundamental
-            { f: 2, g: 0.3, type: 'sine' },
-            { f: 3, g: 0.15, type: 'sine' },
-            { f: 4, g: 0.08, type: 'sine' },
-            { f: 6, g: 0.03, type: 'sine' }
+        const midOptions = ["지글지글", "슈퍼파워", "대박사건", "냠냠쩝쩝", "출발직전"];
+        
+        const buyMessages = [
+            "🎉 예쓰! 오늘 메뉴는 짜장 떡볶이다!",
+            "🚀 짜장 로켓 발사! 곧 도착합니다!",
+            "👑 승우와 시우의 멋진 파티 타임!",
+            "🍗 맛있는 떡볶이가 사달라고 외쳐요!",
+            "🔥 역시 운명은 먹는 쪽을 선택했어!"
         ];
 
-        harmonics.forEach(h => {
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = h.type;
-            osc.frequency.setValueAtTime(freq * h.f, startTime);
+        let isSpinning = false;
+
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
             
-            // 피아노 특유의 ADSR 감쇄 곡선
-            g.gain.setValueAtTime(h.g, startTime);
-            g.gain.exponentialRampToValueAtTime(0.0001, startTime + duration / h.f);
+            machine.classList.add('shake');
+            finalMsg.innerText = "과연 결과는...?!";
+            leverBtn.disabled = true;
+
+            let count = 0;
+            const duration = 20; 
             
-            osc.connect(g);
-            g.connect(master);
-            osc.start(startTime);
-            osc.stop(startTime + duration);
-        });
-
-        // Hammer Strike (타건 노이즈)
-        const strike = audioCtx.createOscillator();
-        const strikeGain = audioCtx.createGain();
-        strike.frequency.setValueAtTime(freq * 4.2, startTime);
-        strikeGain.gain.setValueAtTime(0.05, startTime);
-        strikeGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.04);
-        strike.connect(strikeGain);
-        strikeGain.connect(master);
-        strike.start(startTime);
-        strike.stop(startTime + 0.04);
-    }
-
-    function playSequence(idx) {
-        const notes = currentNotesData[idx];
-        if (!notes || notes.length === 0) return;
-        const playMode = document.getElementById('playMode').value;
-        const direction = document.getElementById('direction').value;
-        const startOct = parseInt(document.getElementById('rootOctave').value);
-        const now = audioCtx.currentTime;
-        let lastFreq = 0; let octaveOffset = 0;
-
-        notes.forEach((note, i) => {
-            const baseFreq = 16.35 * Math.pow(2, startOct) * Math.pow(2, chrom.indexOf(note)/12);
-            let targetFreq = baseFreq * Math.pow(2, octaveOffset);
-            if (direction === 'asc') {
-                while (lastFreq > 0 && targetFreq <= lastFreq) { octaveOffset++; targetFreq = baseFreq * Math.pow(2, octaveOffset); }
-            } else {
-                while (lastFreq > 0 && targetFreq >= lastFreq) { octaveOffset--; targetFreq = baseFreq * Math.pow(2, octaveOffset); }
-            }
-            const playTime = (playMode === 'seq') ? now + (i * 0.25) : now;
-            playInternalPiano(targetFreq, playTime, 2.5);
-            lastFreq = targetFreq;
-        });
-    }
-
-    // --- UI & DRAW LOGIC ---
-    const matrixCont = document.getElementById('matrix');
-    for(let i=0; i<8; i++) {
-        matrixCont.innerHTML += `<div class="q-box" onclick="playSequence(${i})"><div class="q-title" id="title${i}">-</div><div class="q-canvas-wrap"><canvas id="canvas${i}" width="220" height="220"></canvas></div><div id="notes${i}" class="q-notes">-</div></div>`;
-    }
-
-    const axisSelect = document.getElementById('axisSelect');
-    chrom.forEach(n => { const op = document.createElement('option'); op.value = n; op.textContent = n; if(n === 'Ab') op.selected = true; axisSelect.appendChild(op); });
-
-    function getMirror(n, axis) { return chrom[(2 * chrom.indexOf(axis) - chrom.indexOf(n) + 12) % 12]; }
-    function getTritone(n) { return chrom[(chrom.indexOf(n) + 6) % 12]; }
-
-    function drawWedge(canvasId, activeNotes, color, notesId, visualAxis, mirrorAxis, isSpecial, idx) {
-        currentNotesData[idx] = activeNotes;
-        const cvs = document.getElementById(canvasId), ctx = cvs.getContext('2d');
-        const cx=110, cy=110, r=72;
-        const mode = document.getElementById('cycleDir').value;
-        let currentCycle = (mode === '5th') ? cycle5th : (mode === '4th' ? cycle4th : chrom);
-        const rotationOffset = -90 - (currentCycle.indexOf(visualAxis) * 30);
-        ctx.clearRect(0,0,220,220);
-        const guideAxis = mirrorAxis || visualAxis;
-        const mIdx = currentCycle.indexOf(guideAxis);
-        const angS = (mIdx * 30 + rotationOffset) * Math.PI / 180;
-        const angE = ((mIdx + 6) * 30 + rotationOffset) * Math.PI / 180;
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.moveTo(cx+(r+15)*Math.cos(angS), cy+(r+15)*Math.sin(angS));
-        ctx.lineTo(cx+(r+15)*Math.cos(angE), cy+(r+15)*Math.sin(angE)); ctx.stroke();
-        currentCycle.forEach((n, i) => {
-            const isActive = activeNotes.includes(n);
-            const ang = (i * 30 + rotationOffset) * Math.PI / 180;
-            if(isActive) { ctx.fillStyle = color; ctx.globalAlpha = 0.65; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, ang - Math.PI/12, ang + Math.PI/12); ctx.fill(); ctx.globalAlpha = 1.0; }
-            ctx.fillStyle = "#fff"; ctx.font = isActive ? "bold 13px sans-serif" : "300 10px sans-serif";
-            ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(n, cx+(r+22)*Math.cos(ang), cy+(r+22)*Math.sin(ang));
-        });
-        ctx.strokeStyle = '#222'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
-        document.getElementById(notesId).textContent = activeNotes.length > 0 ? activeNotes.join(' ') : "-";
-        document.getElementById(notesId).style.color = isSpecial ? color : 'var(--active)';
-    }
-
-    function drawAll() {
-        const vAxis = axisSelect.value;
-        const colors = ['#00ffaa', '#00d2ff', '#3d5afe', '#651fff', '#e91e63', '#ff9800'];
-        document.getElementById('title0').textContent = '1. SOURCE'; drawWedge('canvas0', inputSequence, '#fff', 'notes0', vAxis, null, false, 0);
-        document.getElementById('title1').textContent = '2. PROJECTION'; const projected = inputSequence.map(n => getTritone(n)); drawWedge('canvas1', projected, 'var(--proj)', 'notes1', vAxis, null, true, 1);
-        physicalAxes.forEach((axis, i) => {
-            const mirrored = inputSequence.map(n => getMirror(n, axis));
-            const tritone = getTritone(axis); const targetIdx = i + 2;
-            document.getElementById(`title${targetIdx}`).textContent = `${targetIdx + 1}. AXIS: ${axis}-${tritone}`;
-            drawWedge(`canvas${targetIdx}`, mirrored, colors[i], `notes${targetIdx}`, vAxis, axis, false, targetIdx);
-        });
-    }
-
-    const layout = [{n:'C',t:'w'},{n:'Db',t:'b'},{n:'D',t:'w'},{n:'Eb',t:'b'},{n:'E',t:'w'},{n:'F',t:'w'},{n:'Gb',t:'b'},{n:'G',t:'w'},{n:'Ab',t:'b'},{n:'A',t:'w'},{n:'Bb',t:'b'},{n:'B',t:'w'}];
-    let wc = 0; const pCont = document.getElementById('piano');
-    for (let i = 0; i < 2; i++) {
-        layout.forEach(item => {
-            const k = document.createElement('div'); k.onclick = () => toggle(item.n, k);
-            if (item.t === 'w') { k.className = 'white-key'; pCont.appendChild(k); wc++; }
-            else { k.className = 'black-key'; k.style.left = `calc(${(wc/14)*100}% - 2.4%)`; pCont.appendChild(k); }
-        });
-    }
-
-    function toggle(note, el) {
-        if (el.classList.contains('active')) {
-            el.classList.remove('active');
-            const idx = inputSequence.indexOf(note); if(idx > -1) inputSequence.splice(idx, 1);
-        } else {
-            el.classList.add('active'); inputSequence.push(note);
-            const startOct = parseInt(document.getElementById('rootOctave').value);
-            const freq = 16.35 * Math.pow(2, startOct) * Math.pow(2, chrom.indexOf(note)/12);
-            playInternalPiano(freq, audioCtx.currentTime, 2.0);
+            const interval = setInterval(() => {
+                slotText.innerText = midOptions[Math.floor(Math.random() * midOptions.length)];
+                slotText.style.color = "#ffd700";
+                
+                count++;
+                if (count > duration) {
+                    clearInterval(interval);
+                    stopSpin();
+                }
+            }, 80);
         }
-        drawAll();
-    }
-    drawAll();
-</script>
+
+        function stopSpin() {
+            machine.classList.remove('shake');
+            isSpinning = false;
+            leverBtn.disabled = false;
+
+            const result = Math.random() > 0.05 ? "사간다!" : "만다...";
+            slotText.innerText = result;
+
+            if (result === "사간다!") {
+                slotText.className = "slot-window neon-buy";
+                finalMsg.innerText = buyMessages[Math.floor(Math.random() * buyMessages.length)];
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+            } else {
+                slotText.className = "slot-window neon-skip";
+                finalMsg.innerText = "😲 엥? 안 사간다고?! \n한 번 더 눌러서 기회를 주자!";
+                if (navigator.vibrate) navigator.vibrate(200);
+            }
+        }
+
+        leverBtn.addEventListener('click', spin);
+    </script>
 </body>
 </html>
